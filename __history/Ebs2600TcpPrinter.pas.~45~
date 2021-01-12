@@ -1,0 +1,216 @@
+unit Ebs2600TcpPrinter;
+
+interface
+
+uses
+  System.SysUtils, IdTCPClient, IdTCPServer, System.Classes, IdGlobal, System.JSON;
+
+type
+  Tbs2600TcpPrinter = class;
+  Tbs2600TcpPrinter = class(TComponent)
+  private
+    FIdTCPClient: TIdTCPClient;
+    JSonObject:TJSonObject;
+    JSonValue:TJSonValue;
+    FPort: TIdPort;
+    FHost: string;
+    procedure CreateCmd(CMD: integer); overload;
+    procedure CreateCmd(CMD: integer; Add: boolean); overload;
+    procedure CreateCmd(CMD: integer; ProjectPath: string); overload;
+    procedure Send(Cmd: string);
+    procedure Disconnect;
+    procedure SetHost(const Value: string);
+    procedure SetPort(const Value: TIdPort);
+  protected
+
+  public
+    GetData: TIdBytes;
+    procedure Connect;
+    procedure CheckStatus;
+    procedure CheckAutostartStatus;
+    procedure ToggleAutostartStatus(Autostart: boolean);
+    procedure PrintOn(Autostart: boolean);
+    procedure PrintOff;
+    procedure OpenExistingProject(Projectpath: string);
+    procedure TurnOffSystem;
+    procedure RestartSystem;
+    procedure Write(Cmd: string);
+    function Read: TIdBytes;
+
+  published
+
+    property IdTCPClient: TIdTCPClient read FIdTCPClient;
+    property Host: string read FHost write SetHost;
+    property Port: TIdPort read FPort write SetPort;
+
+  end;
+
+procedure Register;
+
+implementation
+
+procedure Register;
+begin
+  RegisterComponents('Ebs2600', [Tbs2600TcpPrinter]);
+end;
+
+{ Tbs2600TcpPrinter }
+
+procedure Tbs2600TcpPrinter.Connect;
+begin
+  FIdTCPClient := TIdTCPClient.Create;
+  FIdTCPClient.ConnectTimeout := 20000;
+  FIdTCPClient.ReadTimeout := 20000;
+  FIdTCPClient.Connect(Host,Port);
+end;
+//==============================================================================
+
+procedure Tbs2600TcpPrinter.SetHost(const Value: string);
+begin
+  FHost := Value;
+end;
+//==============================================================================
+
+procedure Tbs2600TcpPrinter.SetPort(const Value: TIdPort);
+begin
+  FPort := Value;
+end;
+//==============================================================================
+//===========================JSON===============================================
+
+procedure Tbs2600TcpPrinter.CreateCmd(CMD: integer);
+var
+Command: string;
+begin
+  Command := '{"CMD":'+inttostr(CMD)+'}';
+  Send(Command);
+end;
+//==============================================================================
+
+procedure Tbs2600TcpPrinter.CreateCmd(CMD: integer; Add: boolean);
+var
+Command: string;
+value: integer;
+begin
+  if Add then value:=1 else value:=0;
+  case CMD of
+  30: Command := '{"CMD":'+inttostr(CMD)+',"ForcePrint":'+inttostr(value)+'}';
+  22: Command := '{"CMD":'+inttostr(CMD)+',"Autostart":'+inttostr(value)+'}';
+  end;
+  Send(Command);
+end;
+//==============================================================================
+
+procedure Tbs2600TcpPrinter.CreateCmd(CMD: integer; ProjectPath: string);
+var
+Command: string;
+begin
+   Command := '{"CMD":'+inttostr(CMD)+',"Projectpath":"'+ProjectPath+'"}';
+   Send(Command);
+end;
+//==============================================================================
+
+procedure Tbs2600TcpPrinter.Send(Cmd: string);
+begin
+try
+  Write(Cmd);
+  GetData := Read;
+finally
+  //FIdTCPClient.IOHandler.Close;
+  //FIdTCPClient.IOHandler.DiscardAll;
+  FIdTCPClient.IOHandler.Destroy;
+  Disconnect;
+  FIdTCPClient.Destroy;
+end;
+end;
+//==============================================================================
+
+procedure Tbs2600TcpPrinter.Disconnect;
+begin
+  FIdTCPClient.Disconnect;
+end;
+//==============================================================================
+
+procedure Tbs2600TcpPrinter.Write(Cmd: string);
+begin
+  FIdTCPClient.IOHandler.WriteLn(Cmd);
+end;
+//==============================================================================
+
+function Tbs2600TcpPrinter.Read: TIdBytes;
+begin
+  FIdTCPClient.IOHandler.ReadBytes(Result, -1, false);
+end;
+//==============================================================================
+
+procedure Tbs2600TcpPrinter.CheckStatus;
+var
+ CMD: integer;
+begin
+  CMD := 20;
+  CreateCmd(CMD);
+end;
+
+//==============================================================================
+procedure Tbs2600TcpPrinter.CheckAutostartStatus;
+var
+ CMD: integer;
+begin
+  CMD := 21;
+  CreateCmd(CMD);
+end;
+
+//==============================================================================
+procedure Tbs2600TcpPrinter.ToggleAutostartStatus(Autostart: boolean);
+var
+ CMD: integer;
+begin
+  CMD := 22;
+  CreateCmd(CMD,Autostart);
+end;
+
+//==============================================================================
+procedure Tbs2600TcpPrinter.PrintOn(Autostart: boolean);
+var
+ CMD: integer;
+begin
+  CMD := 30;
+  CreateCmd(CMD,Autostart);
+end;
+
+//==============================================================================
+procedure Tbs2600TcpPrinter.PrintOff;
+var
+  CMD: integer;
+begin
+  CMD := 31;
+  CreateCmd(CMD);
+end;
+
+//==============================================================================
+procedure Tbs2600TcpPrinter.OpenExistingProject(Projectpath: string);
+var
+ CMD: integer;
+begin
+  CMD := 11010;
+  CreateCmd(CMD,Projectpath);
+end;
+
+//==============================================================================
+procedure Tbs2600TcpPrinter.TurnOffSystem;
+var
+ CMD: integer;
+begin
+  CMD := 30000;
+  CreateCmd(CMD);
+end;
+
+//==============================================================================
+procedure Tbs2600TcpPrinter.RestartSystem;
+var
+ CMD: integer;
+begin
+  CMD := 30001;
+  CreateCmd(CMD);
+end;
+end.

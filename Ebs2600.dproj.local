@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2020/11/04 09:15:31.000.725,=rtl.dcp</Transaction>
+    <Transaction>2020/11/04 09:16:12.000.578,D:\Moje dokumenty\Embarcadero\Studio\Projects\Package1.dproj=D:\Moje dokumenty\Embarcadero\Studio\19.0\Components\Ebs2600\Ebs2600.dproj</Transaction>
+    <Transaction>2020/11/04 09:17:15.000.033,=D:\Moje dokumenty\Embarcadero\Studio\19.0\Components\Ebs2600\mpComPortEbs2600.pas</Transaction>
+    <Transaction>2020/11/04 09:18:04.000.812,D:\Moje dokumenty\Embarcadero\Studio\19.0\Components\Ebs2600\mpComPortEbs2600.pas=D:\Moje dokumenty\Embarcadero\Studio\19.0\Components\Ebs2600\Ebs2600ComPrinter.pas</Transaction>
+    <Transaction>2020/11/04 09:25:39.000.596,=mpBase.dcp</Transaction>
+    <Transaction>2020/11/16 11:41:37.000.514,=D:\Moje dokumenty\Embarcadero\Studio\19.0\Components\Ebs2600\Unit1.pas</Transaction>
+    <Transaction>2020/11/16 11:51:03.000.247,D:\Moje dokumenty\Embarcadero\Studio\19.0\Components\Ebs2600\Ebs2600ComPrinterReceivingThread.pas=D:\Moje dokumenty\Embarcadero\Studio\19.0\Components\Ebs2600\Unit1.pas</Transaction>
+    <Transaction>2020/11/19 12:27:11.000.078,D:\Moje dokumenty\Embarcadero\Studio\19.0\Components\Ebs2600\_Ebs2600ComPrinterReceivingThread.pas=D:\Moje dokumenty\Embarcadero\Studio\19.0\Components\Ebs2600\Ebs2600ComPrinterReceivingThread.pas</Transaction>
+    <Transaction>2020/11/19 12:27:20.000.158,D:\Moje dokumenty\Embarcadero\Studio\19.0\Components\Ebs2600\_Ebs2600ComPrinterReceivingThread.pas=</Transaction>
+    <Transaction>2020/11/20 07:50:08.000.118,=D:\Moje dokumenty\Embarcadero\Studio\19.0\Components\Ebs2600\Unit1.pas</Transaction>
+    <Transaction>2020/11/20 07:50:41.000.016,D:\Moje dokumenty\Embarcadero\Studio\19.0\Components\Ebs2600\Unit1.pas=D:\Moje dokumenty\Embarcadero\Studio\19.0\Components\Ebs2600\Ebs2600TcpPrinter.pas</Transaction>
+    <Transaction>2020/11/20 07:52:31.000.553,D:\Moje dokumenty\Embarcadero\Studio\19.0\Components\Ebs2600\Ebs2600TcpPrinter.pas=D:\Moje dokumenty\Embarcadero\Studio\19.0\Components\Ebs2600\_Ebs2600TcpPrinter.pas</Transaction>
+    <Transaction>2020/11/20 07:57:02.000.302,=D:\Moje dokumenty\Embarcadero\Studio\19.0\Components\Ebs2600\Ebs2600TcpPrinter.pas</Transaction>
+  </Transactions>
+</BorlandProject>

@@ -1,0 +1,37 @@
+﻿unit Ebs2600ComPrinterReceivingThread;
+
+interface
+
+uses
+  System.SysUtils, System.Classes, mpComPort;
+
+type
+  TReceivingThread = class(TThread)
+  private
+    FReceivingThread: Pointer;
+  protected
+
+  public
+    procedure Execute; override;
+    property ReceivingThread: Pointer read FReceivingThread write FReceivingThread;
+
+  end;
+
+implementation
+
+{ Ebs2600ComPrinter }
+
+procedure TReceivingThread.Execute;
+begin
+  FreeOnTerminate := True;
+  if Assigned(OnDataAvailable) then
+  Synchronize( procedure
+    begin
+      OnDataAvailable(Self)
+    end
+    );
+end;
+//==============================================================================
+
+
+end.
