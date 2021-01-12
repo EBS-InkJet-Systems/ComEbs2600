@@ -14,9 +14,10 @@ type
     //JSonValue:TJSonValue;
     FPort: TIdPort;
     FHost: string;
-    procedure CreateCmd(CMD: integer); overload;
-    procedure CreateCmd(CMD: integer; Add: boolean); overload;
-    procedure CreateCmd(CMD: integer; ProjectPath: string); overload;
+    function CreateCmd(CMD: integer): string; overload;
+    function CreateCmd(CMD: integer; Add: boolean): string; overload;
+    function CreateCmd(CMD: integer; ProjectPath: string): string; overload;
+    procedure SetConnection;
     procedure Send(Cmd: string);
 
     procedure SetHost(const Value: string);
@@ -88,38 +89,27 @@ end;
 //==============================================================================
 //===========================JSON===============================================
 
-procedure Tbs2600TcpPrinter.CreateCmd(CMD: integer);
-var
-Command: string;
+function Tbs2600TcpPrinter.CreateCmd(CMD: integer): string;
 begin
-  Command := '{"CMD":'+inttostr(CMD)+'}';
-  Send(Command);
-  GetData := Read;
+  Result := '{"CMD":'+inttostr(CMD)+'}';
 end;
 //==============================================================================
 
-procedure Tbs2600TcpPrinter.CreateCmd(CMD: integer; Add: boolean);
+function Tbs2600TcpPrinter.CreateCmd(CMD: integer; Add: boolean): string;
 var
-Command: string;
 value: integer;
 begin
   if Add then value:=1 else value:=0;
     case CMD of
-      30: Command := '{"CMD":'+inttostr(CMD)+',"ForcePrint":'+inttostr(value)+'}';
-      22: Command := '{"CMD":'+inttostr(CMD)+',"Autostart":'+inttostr(value)+'}';
+      30: Result := '{"CMD":'+inttostr(CMD)+',"ForcePrint":'+inttostr(value)+'}';
+      22: Result := '{"CMD":'+inttostr(CMD)+',"Autostart":'+inttostr(value)+'}';
     end;
-  Send(Command);
-  GetData := Read;
 end;
 //==============================================================================
 
-procedure Tbs2600TcpPrinter.CreateCmd(CMD: integer; ProjectPath: string);
-var
-Command: string;
+function Tbs2600TcpPrinter.CreateCmd(CMD: integer; ProjectPath: string): string;
 begin
-   Command := '{"CMD":'+inttostr(CMD)+',"ProjectPath":"'+ProjectPath+'"}';
-   Send(Command);
-   GetData := Read;
+   Result := '{"CMD":'+inttostr(CMD)+',"ProjectPath":"'+ProjectPath+'"}';
 end;
 //==============================================================================
 
@@ -136,7 +126,8 @@ end;
 procedure Tbs2600TcpPrinter.Disconnect;
 begin
   try
-    FIdTCPClient.Disconnect;  
+    FIdTCPClient.Disconnect;
+
   except
     raise Exception.Create('Disconnection Error');
   end;
@@ -151,7 +142,7 @@ end;
 function Tbs2600TcpPrinter.Read: TIdBytes;
 begin
   try
-    FIdTCPClient.IOHandler.ReadBytes(Result, -1, false); 
+    FIdTCPClient.IOHandler.ReadBytes(Result, -1, false);
   except
     raise Exception.Create('Read Error');
   end;
@@ -163,7 +154,10 @@ var
  CMD: integer;
 begin
   CMD := 20;
-  CreateCmd(CMD);
+  Connect;
+  Send(CreateCmd(CMD));
+  GetData := Read;
+  Disconnect;
 end;
 
 //==============================================================================
@@ -172,7 +166,10 @@ var
   CMD: integer;
 begin
   CMD := 21;
-  CreateCmd(CMD);
+  Connect;
+  Send(CreateCmd(CMD));
+  GetData := Read;
+  Disconnect;
 end;
 
 //==============================================================================
@@ -181,7 +178,10 @@ var
   CMD: integer;
 begin
   CMD := 22;
-  CreateCmd(CMD,Autostart);
+  Connect;
+  Send(CreateCmd(CMD,Autostart));
+  GetData := Read;
+  Disconnect;
 end;
 
 //==============================================================================
@@ -190,7 +190,10 @@ var
   CMD: integer;
 begin
   CMD := 30;
-  CreateCmd(CMD,Autostart);
+  Connect;
+  Send(CreateCmd(CMD,Autostart));
+  GetData := Read;
+  Disconnect;
 end;
 
 //==============================================================================
@@ -199,7 +202,10 @@ var
   CMD: integer;
 begin
   CMD := 31;
-  CreateCmd(CMD);
+  Connect;
+  Send(CreateCmd(CMD));
+  GetData := Read;
+  Disconnect;
 end;
 
 //==============================================================================
@@ -208,7 +214,10 @@ var
   CMD: integer;
 begin
   CMD := 11010;
-  CreateCmd(CMD,Projectpath);
+  Connect;
+  Send(CreateCmd(CMD,Projectpath));
+  GetData := Read;
+  Disconnect;
 end;
 
 //==============================================================================
@@ -217,7 +226,10 @@ var
   CMD: integer;
 begin
   CMD := 30000;
-  CreateCmd(CMD);
+  Connect;
+  Send(CreateCmd(CMD));
+  GetData := Read;
+  Disconnect;
 end;
 
 //==============================================================================
@@ -226,7 +238,10 @@ var
   CMD: integer;
 begin
   CMD := 30001;
-  CreateCmd(CMD);
+  Connect;
+  Send(CreateCmd(CMD));
+  GetData := Read;
+  Disconnect;
 end;
 
 end.

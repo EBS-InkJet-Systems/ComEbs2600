@@ -14,9 +14,9 @@ type
     //JSonValue:TJSonValue;
     FPort: TIdPort;
     FHost: string;
-    procedure CreateCmd(CMD: integer); overload;
-    procedure CreateCmd(CMD: integer; Add: boolean); overload;
-    procedure CreateCmd(CMD: integer; ProjectPath: string); overload;
+    procedure SetConnection(CMD: integer); overload;
+    procedure SetConnection(CMD: integer; Add: boolean); overload;
+    procedure SetConnection(CMD: integer; ProjectPath: string); overload;
     procedure Send(Cmd: string);
 
     procedure SetHost(const Value: string);
@@ -60,9 +60,13 @@ end;
 procedure Tbs2600TcpPrinter.Connect;
 begin
   FIdTCPClient := TIdTCPClient.Create;
-  FIdTCPClient.ConnectTimeout := 20000;
-  FIdTCPClient.ReadTimeout := 20000;
-  FIdTCPClient.Connect(Host,Port);
+  FIdTCPClient.ConnectTimeout := 500;
+  FIdTCPClient.ReadTimeout := 500;
+  try
+    FIdTCPClient.Connect(Host,Port);
+  except
+    raise Exception.Create('Connection Error');
+  end;
 end;
 //==============================================================================
 
@@ -82,52 +86,67 @@ begin
   FPort := Value;
 end;
 //==============================================================================
-//===========================JSON===============================================
+//===========================CMD================================================
 
-procedure Tbs2600TcpPrinter.CreateCmd(CMD: integer);
+procedure Tbs2600TcpPrinter.SetConnection(CMD: integer);
 var
 Command: string;
 begin
+  Connect;
   Command := '{"CMD":'+inttostr(CMD)+'}';
   Send(Command);
   GetData := Read;
+  Disconnect;
 end;
 //==============================================================================
 
-procedure Tbs2600TcpPrinter.CreateCmd(CMD: integer; Add: boolean);
+procedure Tbs2600TcpPrinter.SetConnection(CMD: integer; Add: boolean);
 var
 Command: string;
 value: integer;
 begin
+  Connect;
   if Add then value:=1 else value:=0;
-  case CMD of
-  30: Command := '{"CMD":'+inttostr(CMD)+',"ForcePrint":'+inttostr(value)+'}';
-  22: Command := '{"CMD":'+inttostr(CMD)+',"Autostart":'+inttostr(value)+'}';
-  end;
+    case CMD of
+      30: Command := '{"CMD":'+inttostr(CMD)+',"ForcePrint":'+inttostr(value)+'}';
+      22: Command := '{"CMD":'+inttostr(CMD)+',"Autostart":'+inttostr(value)+'}';
+    end;
   Send(Command);
   GetData := Read;
+  Disconnect;
 end;
 //==============================================================================
 
-procedure Tbs2600TcpPrinter.CreateCmd(CMD: integer; ProjectPath: string);
+procedure Tbs2600TcpPrinter.SetConnection(CMD: integer; ProjectPath: string);
 var
 Command: string;
 begin
+   Connect;
    Command := '{"CMD":'+inttostr(CMD)+',"ProjectPath":"'+ProjectPath+'"}';
    Send(Command);
    GetData := Read;
+   Disconnect;
 end;
 //==============================================================================
 
 procedure Tbs2600TcpPrinter.Send(Cmd: string);
 begin
-  FIdTCPClient.IOHandler.WriteLn(Cmd);
+  try
+    FIdTCPClient.IOHandler.WriteLn(Cmd);
+  except
+    raise Exception.Create('Send Cmd Error');
+  end;
 end;
 //==============================================================================
 
 procedure Tbs2600TcpPrinter.Disconnect;
 begin
-  FIdTCPClient.Disconnect;
+  try
+    FIdTCPClient.Disconnect;
+
+  except
+    raise Exception.Create('Disconnection Error');
+  end;
   //FIdTCPClient.IOHandler.Close;
   //FIdTCPClient.IOHandler.DiscardAll;
   //FIdTCPClient.IOHandler.Destroy;
@@ -138,7 +157,11 @@ end;
 
 function Tbs2600TcpPrinter.Read: TIdBytes;
 begin
-  FIdTCPClient.IOHandler.ReadBytes(Result, -1, false);
+  try
+    FIdTCPClient.IOHandler.ReadBytes(Result, -1, false); 
+  except
+    raise Exception.Create('Read Error');
+  end;
 end;
 //==============================================================================
 
@@ -147,34 +170,34 @@ var
  CMD: integer;
 begin
   CMD := 20;
-  CreateCmd(CMD);
+  SetConnection(CMD);
 end;
 
 //==============================================================================
 procedure Tbs2600TcpPrinter.CheckAutostartStatus;
 var
- CMD: integer;
+  CMD: integer;
 begin
   CMD := 21;
-  CreateCmd(CMD);
+  SetConnection(CMD);
 end;
 
 //==============================================================================
 procedure Tbs2600TcpPrinter.ToggleAutostartStatus(Autostart: boolean);
 var
- CMD: integer;
+  CMD: integer;
 begin
   CMD := 22;
-  CreateCmd(CMD,Autostart);
+  SetConnection(CMD,Autostart);
 end;
 
 //==============================================================================
 procedure Tbs2600TcpPrinter.PrintOn(Autostart: boolean);
 var
- CMD: integer;
+  CMD: integer;
 begin
   CMD := 30;
-  CreateCmd(CMD,Autostart);
+  SetConnection(CMD,Autostart);
 end;
 
 //==============================================================================
@@ -183,33 +206,34 @@ var
   CMD: integer;
 begin
   CMD := 31;
-  CreateCmd(CMD);
+  SetConnection(CMD);
 end;
 
 //==============================================================================
 procedure Tbs2600TcpPrinter.OpenExistingProject(Projectpath: string);
 var
- CMD: integer;
+  CMD: integer;
 begin
   CMD := 11010;
-  CreateCmd(CMD,Projectpath);
+  SetConnection(CMD,Projectpath);
 end;
 
 //==============================================================================
 procedure Tbs2600TcpPrinter.TurnOffSystem;
 var
- CMD: integer;
+  CMD: integer;
 begin
   CMD := 30000;
-  CreateCmd(CMD);
+  SetConnection(CMD);
 end;
 
 //==============================================================================
 procedure Tbs2600TcpPrinter.RestartSystem;
 var
- CMD: integer;
+  CMD: integer;
 begin
   CMD := 30001;
-  CreateCmd(CMD);
+  SetConnection(CMD);
 end;
+
 end.
